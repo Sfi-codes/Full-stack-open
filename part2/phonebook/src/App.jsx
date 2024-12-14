@@ -1,33 +1,97 @@
 import { useState } from 'react'
 
+const Header = (props) => {
+  return (<h2>{props.text}</h2>)
+}
+const Input = (props) => {
+  return (
+    <div> {props.text}: <input value={props.value} onChange={props.handleChange} /> </div>
+  )
+}
+const Filter = (props) => {
+  return <Input text='filter' value={props.newFilter} handleChange={props.handleFilterChange} />
+}
+const PersonForm = (props) => {
+
+  return (
+  <form onSubmit={props.addName}>
+    <Input text='name' value={props.newName} handleChange={props.handleNameChange} />
+    <Input text='number' value={props.newNumber} handleChange={props.handleNumberChange} />
+    <div> <button type="submit">add</button> </div>
+  </form>)
+
+}
 const App = () => {
   const [persons, setPersons] = useState([
-    { name: 'Arto Hellas' }
+    {
+      name: 'Arto Hellas',
+      id: 1
+    }
   ])
   const [newName, setNewName] = useState('')
+  const [newNumber, setNewNumber] = useState('')
+  const [newFilter, setNewFilter] = useState('')
 
 
-  const addName = () => {
+  const filteredPersons = newFilter != '' ? persons.filter(value => {
+    return value.name === newFilter
+  })
+    : persons
 
+  const addName = (event) => {
+    event.preventDefault()
+    //create new person
+
+    const nameObject = {
+      name: newName,
+      id: Math.random(),
+      number: newNumber
+    }
+
+    if (persons.reduce((accumulator, value) => {
+      if (value.name !== nameObject.name) {
+        return true
+      }
+      alert(`${nameObject.name} is already added to phonebook`)
+      return false
+    }, 0
+    )) {
+      //add person to person list
+      setPersons(persons.concat(nameObject))
+      setNewName('')
+      const newPerson = persons.concat(nameObject)
+
+      newPerson.reduce((accumulator, value) => {
+        console.log(value)
+      }, 0)
+    }
   }
 
-  console.log(persons.reduce((accumulator, currentValue) => {
-    return currentValue.name
-  }))
+  const handleFilterChange = (event) => {
+    setNewFilter(event.target.value)
+  }
+  const handleNameChange = (event) => {
+    setNewName(event.target.value)
+  }
+  const handleNumberChange = (event) => {
+    setNewNumber(event.target.value)
+  }
 
   return (
     <div>
-      <h2>Phonebook</h2>
-      <form>
-        <div>
-          name: <input />
-        </div>
-        <div>
-          <button type="submit" onClick={addName}>add</button>
-        </div>
-      </form>
-      <h2>Numbers</h2>
-      ...
+      <Header text='Phonebook' />
+      <Filter value={newFilter} handleFilterChange={handleFilterChange} />
+      <Header text='Add a new' />
+      <PersonForm
+        addName={addName}
+        newName={newName}
+        newNumber={newNumber}
+        handleNameChange={handleNameChange}
+        handleNumberChange={handleNumberChange} />
+      <Header text='Numbers' />
+      {filteredPersons.map(person => {
+        return <p key={person.id}>{person.name} {person.number}</p>
+      })}
     </div>
   )
 }
