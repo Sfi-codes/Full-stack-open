@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
 
 const Header = (props) => {
   return (<h2>{props.text}</h2>)
@@ -21,18 +22,30 @@ const PersonForm = (props) => {
   </form>)
 
 }
+const Persons = (props) =>{
+
+  return (<div>
+        {props.filteredPersons.map(person => {
+        return <p key={person.id}>{person.name} {person.number}</p>
+      })}
+  </div>)
+}
 const App = () => {
-  const [persons, setPersons] = useState([
-    {
-      name: 'Arto Hellas',
-      id: 1
-    }
-  ])
+  const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setNewFilter] = useState('')
 
-
+  useEffect(() =>{
+    console.log("effect")
+    axios
+    .get('http://localhost:3001/persons')
+    .then(response =>{
+      console.log('promise fulfilled')
+      setPersons(response.data)
+    })
+        }, [])
+        
   const filteredPersons = newFilter != '' ? persons.filter(value => {
     return value.name === newFilter
   })
@@ -89,9 +102,7 @@ const App = () => {
         handleNameChange={handleNameChange}
         handleNumberChange={handleNumberChange} />
       <Header text='Numbers' />
-      {filteredPersons.map(person => {
-        return <p key={person.id}>{person.name} {person.number}</p>
-      })}
+<Persons filteredPersons = {filteredPersons} />
     </div>
   )
 }
