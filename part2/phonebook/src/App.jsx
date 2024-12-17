@@ -15,19 +15,19 @@ const Filter = (props) => {
 const PersonForm = (props) => {
 
   return (
-  <form onSubmit={props.addName}>
-    <Input text='name' value={props.newName} handleChange={props.handleNameChange} />
-    <Input text='number' value={props.newNumber} handleChange={props.handleNumberChange} />
-    <div> <button type="submit">add</button> </div>
-  </form>)
+    <form onSubmit={props.addName}>
+      <Input text='name' value={props.newName} handleChange={props.handleNameChange} />
+      <Input text='number' value={props.newNumber} handleChange={props.handleNumberChange} />
+      <div> <button type="submit">add</button> </div>
+    </form>)
 
 }
-const Persons = (props) =>{
+const Persons = (props) => {
 
   return (<div>
-        {props.filteredPersons.map(person => {
-        return <p key={person.id}>{person.name} {person.number}</p>
-      })}
+    {props.filteredPersons.map(person => {
+      return <p key={person.id}>{person.name} {person.number}</p>
+    })}
   </div>)
 }
 const App = () => {
@@ -36,16 +36,16 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setNewFilter] = useState('')
 
-  useEffect(() =>{
+  useEffect(() => {
     console.log("effect")
     axios
-    .get('http://localhost:3001/persons')
-    .then(response =>{
-      console.log('promise fulfilled')
-      setPersons(response.data)
-    })
-        }, [])
-        
+      .get('http://localhost:3001/persons')
+      .then(response => {
+        console.log('promise fulfilled')
+        setPersons(response.data)
+      })
+  }, [])
+
   const filteredPersons = newFilter != '' ? persons.filter(value => {
     return value.name === newFilter
   })
@@ -57,27 +57,14 @@ const App = () => {
 
     const nameObject = {
       name: newName,
-      id: Math.random(),
       number: newNumber
     }
 
-    if (persons.reduce((accumulator, value) => {
-      if (value.name !== nameObject.name) {
-        return true
-      }
-      alert(`${nameObject.name} is already added to phonebook`)
-      return false
-    }, 0
-    )) {
-      //add person to person list
-      setPersons(persons.concat(nameObject))
-      setNewName('')
-      const newPerson = persons.concat(nameObject)
-
-      newPerson.reduce((accumulator, value) => {
-        console.log(value)
-      }, 0)
-    }
+    axios.post(`http://localhost:3001/persons`, nameObject)
+      .then(response => {
+        setPersons(persons.concat(nameObject))
+        console.log(`added ${nameObject.name}`)
+      })
   }
 
   const handleFilterChange = (event) => {
@@ -102,7 +89,7 @@ const App = () => {
         handleNameChange={handleNameChange}
         handleNumberChange={handleNumberChange} />
       <Header text='Numbers' />
-<Persons filteredPersons = {filteredPersons} />
+      <Persons filteredPersons={filteredPersons} />
     </div>
   )
 }
